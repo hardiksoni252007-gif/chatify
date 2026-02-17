@@ -5,6 +5,7 @@
   "main": "index.js",
   "devDependencies": {},
   "scripts": {
+    "build": "vite build",
     "dev": "node --watch src/server.js",
     "start": "node src/server.js"
   },

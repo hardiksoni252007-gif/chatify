@@ -2,6 +2,8 @@ import User from "../models/user.js";
 import bcrypt from "bcryptjs";
 import { generateToken } from "../lib/utlis.js";
 import { sendWelcomeEmail } from "../emails/emailHandlers.js";
+import { ENV } from "./lib/env.js";
+
 export const signup = async (req, res) =>{
     const {fullName, email, password} = req.body;
 
@@ -49,7 +51,7 @@ export const signup = async (req, res) =>{
             // send welcome email to user
 
             try {
-                await sendWelcomeEmail(savedUser.email, savedUser.fullName, process.env.CLIENT_URL);
+                await sendWelcomeEmail(savedUser.email, savedUser.fullName, ENV.CLIENT_URL);
             } catch (error) {
                 console.error("Failed to send welcome email", error)
             }
@@ -60,4 +62,32 @@ export const signup = async (req, res) =>{
         console.log("Error in signup controller",error)
         res.status(500).json({message:"Internal server error"})
     }
+}
+
+export const login = async (req,res) => {
+    const {email, password} = req.body
+
+    try {
+        const user = await User.findOne({email})
+        if(!user) return res.status(400).json({message:"Invalid Credentials"});
+            //!never tell your client wich detail is wrong
+        
+        const isPasswordCorrect = await bcrypt.compare(password, user.password)
+        if(!isPasswordCorrect) return res.status(400).json({message:"Invalid Credentials"});
+
+        generateToken(user._id, res)
+
+        res.status(200).json({
+            _id: user.fullName,
+            email: user.email,
+            profilePic: user.profilePic,
+        });
+    } catch (error) {
+        console.error("Error in login controller", error);
+        res.ststus(500)({message: "internal server error"});
+    }
+}
+export const logout = (_,res) => {
+    res.cookies("jwt","",{maxAge:0});
+    res.status(200)({message: "logged out succesfully"});
 }

@@ -1,5 +1,6 @@
 import { Resend } from 'resend';
 import 'dotenv/config';
+import { ENV } from "./env.js";
 
 export const resendClient = new Resend(ENV.RESEND_API_KEY);
 

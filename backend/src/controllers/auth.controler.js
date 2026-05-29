@@ -2,7 +2,7 @@ import User from "../models/user.js";
 import bcrypt from "bcryptjs";
 import { generateToken } from "../lib/utlis.js";
 import { sendWelcomeEmail } from "../emails/emailHandlers.js";
-import { ENV } from "./lib/env.js";
+import { ENV } from "../lib/env.js";
 
 export const signup = async (req, res) =>{
     const {fullName, email, password} = req.body;
@@ -84,10 +84,10 @@ export const login = async (req,res) => {
         });
     } catch (error) {
         console.error("Error in login controller", error);
-        res.ststus(500)({message: "internal server error"});
+        res.ststus(500).json({message: "internal server error"});
     }
 }
 export const logout = (_,res) => {
-    res.cookies("jwt","",{maxAge:0});
-    res.status(200)({message: "logged out succesfully"});
+    res.cookie("jwt","",{ maxAge:0 });
+    res.status(200).json({message: "logged out succesfully"});
 }
